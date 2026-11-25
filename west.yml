@@ -1,0 +1,15 @@
+# West manifest: pulls a pinned Zephyr plus only the modules this app needs.
+manifest:
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: v4.5.0
+      import:
+        name-allowlist:
+          - cmsis_6
+          - hal_nordic
+  self:
+    path: holo-rotor

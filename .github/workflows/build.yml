@@ -1,0 +1,42 @@
+name: Build firmware
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: holo-rotor
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Zephyr (west, modules, SDK)
+        uses: zephyrproject-rtos/action-zephyr-setup@v1
+        with:
+          app-path: holo-rotor
+          toolchains: arm-zephyr-eabi
+
+      - name: Build
+        working-directory: holo-rotor
+        run: west build -p -b promicro_nrf52840/nrf52840/uf2 . -d ../build
+
+      - name: Collect firmware
+        run: |
+          mkdir -p out
+          cp build/zephyr/zephyr.uf2 out/holo-rotor.uf2
+          cp build/zephyr/zephyr.hex out/holo-rotor.hex
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: holo-rotor-firmware
+          path: out/
